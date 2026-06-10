@@ -1,0 +1,11 @@
+services:
+  workboard:
+    build: .
+    ports:
+      - "127.0.0.1:5054:5054"
+    volumes:
+      - workboard-data:/data
+    restart: unless-stopped
+
+volumes:
+  workboard-data:

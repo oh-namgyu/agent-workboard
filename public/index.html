@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>agent-workboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <h1>agent-workboard</h1>
+    <span id="server-status" class="badge badge-ok">connecting…</span>
+  </header>
+
+  <section class="stats">
+    <div class="card stat"><span id="stat-active" class="stat-num">–</span><span class="stat-label">active claims</span></div>
+    <div class="card stat"><span id="stat-stale" class="stat-num">–</span><span class="stat-label">stale</span></div>
+    <div class="card stat"><span id="stat-history" class="stat-num">–</span><span class="stat-label">released (recent)</span></div>
+  </section>
+
+  <main class="split">
+    <section class="panel">
+      <div class="toolbar">
+        <input id="search" class="input" type="search" placeholder="filter by resource / note…" />
+        <div id="agent-chips" class="chips"></div>
+      </div>
+      <table class="table">
+        <thead><tr><th>agent</th><th>resource</th><th>kind</th><th>age</th><th>state</th></tr></thead>
+        <tbody id="claims-body"></tbody>
+      </table>
+      <p id="empty" class="muted hidden">No active claims — the board is clear.</p>
+    </section>
+
+    <aside class="panel">
+      <h2>Detail</h2>
+      <div id="detail" class="muted">Select a claim.</div>
+      <h2>History</h2>
+      <ul id="history" class="timeline"></ul>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

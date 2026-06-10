@@ -1,0 +1,36 @@
+{
+  "name": "agent-workboard",
+  "version": "0.1.0",
+  "description": "Claim board that keeps multiple AI coding agents (Claude Code, Codex, Gemini, ...) from clobbering each other in the same codebase — REST server, live dashboard, CLI, and agent integration kit (hooks / slash commands).",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "agent-workboard": "src/cli.js",
+    "workboard": "src/cli.js"
+  },
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/cli.js serve",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oh-namgyu/agent-workboard.git"
+  },
+  "keywords": [
+    "ai-agents",
+    "claude-code",
+    "multi-agent",
+    "lock",
+    "claim",
+    "coordination",
+    "hooks"
+  ],
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "express": "^4.21.0"
+  }
+}
