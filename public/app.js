@@ -43,7 +43,7 @@ function render() {
   const rows = visibleClaims()
   $('#claims-body').innerHTML = rows
     .map(
-      (c) => `<tr data-id="${esc(c.id)}" class="${c.id === state.selectedId ? 'selected' : ''} ${c.stale ? 'stale' : ''}">
+      (c) => `<tr data-id="${esc(c.id)}" tabindex="0" class="${c.id === state.selectedId ? 'selected' : ''} ${c.stale ? 'stale' : ''}">
         <td><span class="badge badge-agent">${esc(c.agent)}</span></td>
         <td>${esc(c.resource)}</td><td>${esc(c.kind)}</td><td>${age(c.claimed_at)}</td>
         <td>${c.stale ? '<span class="badge badge-warn">stale</span>' : '<span class="badge badge-ok">active</span>'}</td>
@@ -87,9 +87,13 @@ function renderDetail(c) {
   }
 }
 
-$('#claims-body').addEventListener('click', (e) => {
+const selectRow = (e) => {
   const tr = e.target.closest('tr[data-id]')
   if (tr) (state.selectedId = tr.dataset.id), render()
+}
+$('#claims-body').addEventListener('click', selectRow)
+$('#claims-body').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') (e.preventDefault(), selectRow(e))
 })
 $('#agent-chips').addEventListener('click', (e) => {
   const chip = e.target.closest('[data-agent]')
