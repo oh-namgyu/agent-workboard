@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 import { basename } from 'node:path'
+import { realpathSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
 
 const HELP = `agent-workboard — claim board for multiple AI coding agents
 
@@ -127,7 +129,12 @@ async function run(cmd, args) {
   return cmd && cmd !== 'help' ? 1 : 0
 }
 
-const isMain = process.argv[1] && import.meta.url.endsWith(basename(process.argv[1]))
+let isMain = false
+try {
+  isMain = process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)
+} catch {
+  /* argv[1] missing or unreadable — not a CLI invocation */
+}
 if (isMain) {
   const args = parseArgs(process.argv.slice(2))
   run(args._[0], args)
