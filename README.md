@@ -1,5 +1,7 @@
 # agent-workboard
 
+**[🇰🇷 한국어 README](README_KOR.md)**
+
 A claim board that keeps multiple AI coding agents — Claude Code, Codex CLI, Gemini CLI, or
 any tool that can run a shell command — from clobbering each other in the same codebase.
 
