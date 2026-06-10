@@ -140,7 +140,8 @@ if (isMain) {
   run(args._[0], args)
     .then((code) => code !== null && process.exit(code))
     .catch((err) => {
-      console.error(`✗ ${err.message} (is the server running? try: workboard serve)`)
+      const hint = err.message.includes('fetch') ? ' (is the server running? try: workboard serve)' : ''
+      console.error(`✗ ${err.message}${hint}`)
       process.exit(1)
     })
 }
