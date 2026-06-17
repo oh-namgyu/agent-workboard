@@ -34,6 +34,9 @@ export function createServer({ dbFile, ttlMinutes } = {}) {
   app.post('/api/claims', (req, res) => {
     const { agent, resource, kind, note } = req.body || {}
     if (!agent || !resource) return res.status(400).json({ error: 'agent and resource are required' })
+    if (kind != null && kind !== 'project' && kind !== 'path') {
+      return res.status(400).json({ error: "kind must be 'project' or 'path'" })
+    }
     store.expireStale()
     const existing = store.findActive(agent, resource)
     if (existing) {
