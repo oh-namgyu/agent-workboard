@@ -1,5 +1,10 @@
 # agent-workboard
 
+[![CI](https://github.com/oh-namgyu/agent-workboard/actions/workflows/ci.yml/badge.svg)](https://github.com/oh-namgyu/agent-workboard/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/oh-namgyu/agent-workboard)](LICENSE)
+[![Release](https://img.shields.io/github/v/release/oh-namgyu/agent-workboard)](https://github.com/oh-namgyu/agent-workboard/releases)
+
+
 **[🇰🇷 한국어 README](README_KOR.md)**
 
 A claim board that keeps multiple AI coding agents — Claude Code, Codex CLI, Gemini CLI, or
