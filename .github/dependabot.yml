@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # v13 prebuilds SIGSEGV on ubuntu-latest CI (node 20/22); revisit upstream
+      - dependency-name: better-sqlite3
+        update-types: ["version-update:semver-major"]
     groups:
       production:
         dependency-type: production
