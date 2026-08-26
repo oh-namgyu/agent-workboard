@@ -5,6 +5,8 @@
 [![Release](https://img.shields.io/github/v/release/oh-namgyu/agent-workboard)](https://github.com/oh-namgyu/agent-workboard/releases)
 
 
+> **한글 요약** — 여러 AI 코딩 에이전트(Claude Code·Codex·Gemini)가 같은 코드베이스에서 서로 충돌하지 않도록 하는 자원 claim 보드입니다. REST 서버 + 실시간 대시보드 + CLI + 훅 기반 강제 키트로 구성됩니다. *(전체 한국어 문서: [README_KOR.md](README_KOR.md))*
+
 **[🇰🇷 한국어 README](README_KOR.md)**
 
 A claim board that keeps multiple AI coding agents — Claude Code, Codex CLI, Gemini CLI, or
