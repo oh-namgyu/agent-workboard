@@ -1,9 +1,8 @@
 # agent-workboard
 
 [![CI](https://github.com/oh-namgyu/agent-workboard/actions/workflows/ci.yml/badge.svg)](https://github.com/oh-namgyu/agent-workboard/actions/workflows/ci.yml)
-[![License](https://img.shields.io/github/license/oh-namgyu/agent-workboard)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Release](https://img.shields.io/github/v/release/oh-namgyu/agent-workboard)](https://github.com/oh-namgyu/agent-workboard/releases)
-
 
 > **한글 요약** — 여러 AI 코딩 에이전트(Claude Code·Codex·Gemini)가 같은 코드베이스에서 서로 충돌하지 않도록 하는 자원 claim 보드입니다. REST 서버 + 실시간 대시보드 + CLI + 훅 기반 강제 키트로 구성됩니다. *(전체 한국어 문서: [README_KOR.md](README_KOR.md))*
 
@@ -129,4 +128,6 @@ docker compose up -d   # board on 127.0.0.1:5054, db persisted in a volume
 npm test   # unit + HTTP lifecycle + CLI e2e (two simulated agents colliding)
 ```
 
-MIT — see [LICENSE](LICENSE). Security model and reporting: [SECURITY.md](SECURITY.md).
+## License
+
+MIT — see [LICENSE](LICENSE). Security policy: [SECURITY.md](SECURITY.md).
