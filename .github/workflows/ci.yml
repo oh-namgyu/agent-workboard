@@ -19,3 +19,16 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
       - run: npm test
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build image
+        run: docker build -t agent-workboard:ci .
+      - name: Smoke the container
+        run: |
+          docker run -d --name awb -p 127.0.0.1:5054:5054 agent-workboard:ci
+          for i in $(seq 1 30); do curl -fs http://127.0.0.1:5054/api/claims >/dev/null && break; sleep 1; done
+          curl -fs -X POST -H 'Content-Type: application/json' -d '{"agent":"ci","resource":"smoke"}' http://127.0.0.1:5054/api/claims
+          docker logs awb

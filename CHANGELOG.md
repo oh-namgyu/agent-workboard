@@ -3,6 +3,11 @@
 All notable changes are documented here. Format: [Keep a Changelog](https://keepachangelog.com/), versioning: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+
+### CI
+
+- Build and smoke the Docker image on every push, so a base-image bump that breaks the native `better-sqlite3` build (e.g. `node:26-slim`) fails CI instead of merging silently.
+
 ### Fixed
 - Path globs: `**/` now also matches zero directories (`src/**/*.js` covers `src/a.js`, `**/*.test.js` covers a root-level `a.test.js`) — previously such edits were silently allowed.
 - Path claims now cover everything beneath the claimed path (`src/api` and `src/api/` behave like `src/api/**`) without matching siblings such as `src/api-v2`.
