@@ -48,7 +48,7 @@ export function createServer({ dbFile, ttlMinutes } = {}) {
       store.heartbeat(existing.id)
       return res.json({ claim: store.get(existing.id), refreshed: true })
     }
-    const conflicts = findConflicts(store.active(), { agent, resource })
+    const conflicts = findConflicts(store.active(), { agent, resource, kind })
     if (conflicts.length) return res.status(409).json({ error: 'resource is claimed by another agent', conflicts })
     const claim = store.create({ agent, resource, kind, note })
     broadcast()

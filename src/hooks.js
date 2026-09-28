@@ -1,4 +1,4 @@
-import { basename, relative, isAbsolute } from 'node:path'
+import { basename, relative, isAbsolute, sep } from 'node:path'
 import { api, baseUrl } from './cli.js'
 
 const GATED_TOOLS = /^(Edit|Write|MultiEdit|NotebookEdit)$/
@@ -31,7 +31,7 @@ export async function runHook(event) {
     const file = payload.tool_input?.file_path || payload.tool_input?.notebook_path || ''
     const rel = isAbsolute(file) ? relative(cwd, file) : file
     const q = new URLSearchParams({ agent, resource: project })
-    if (rel && !rel.startsWith('..')) q.set('path', rel)
+    if (rel && rel !== '..' && !rel.startsWith(`..${sep}`)) q.set('path', rel)
     let data
     try {
       data = (await api(`/api/check?${q}`)).data

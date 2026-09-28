@@ -2,7 +2,9 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { networkInterfaces } from 'node:os'
 import { connect } from 'node:net'
-import { startApp, spawnServe } from './helpers.js'
+import { spawn } from 'node:child_process'
+import { join } from 'node:path'
+import { startApp, spawnServe, CLI, tempDir } from './helpers.js'
 
 test('health endpoint', async (t) => {
   const { base } = await startApp(t)
@@ -126,4 +128,27 @@ test('CLI serve binds loopback by default', async (t) => {
     sock.setTimeout(1000, () => (sock.destroy(), resolve(false)))
   })
   assert.equal(reachable, false, `board must not be reachable on ${lan.address}`)
+})
+
+test('POST /api/claims: overlapping path claim by another agent → 409', async (t) => {
+  const { post } = await startApp(t)
+  assert.equal((await post('/api/claims', { agent: 'codex', resource: 'src/**', kind: 'path' })).status, 201)
+  const res = await post('/api/claims', { agent: 'claude', resource: 'src/api/users.js', kind: 'path' })
+  assert.equal(res.status, 409)
+  assert.deepEqual((await res.json()).conflicts.map((c) => c.resource), ['src/**'])
+  assert.equal((await post('/api/claims', { agent: 'claude', resource: 'src-v2/**', kind: 'path' })).status, 201)
+  assert.equal((await post('/api/claims', { agent: 'codex', resource: 'src/api/**', kind: 'path' })).status, 201, 'same agent')
+})
+
+test('serve --port 0 binds an ephemeral port and prints it', async (t) => {
+  const child = spawn(process.execPath, [CLI, 'serve', '--port', '0', '--db', join(tempDir(t), 's.db')])
+  t.after(() => child.kill())
+  const banner = await new Promise((resolve, reject) => {
+    child.stdout.on('data', (d) => resolve(String(d)))
+    child.on('exit', (code) => reject(new Error(`server exited early (${code})`)))
+    setTimeout(() => reject(new Error('server did not start')), 5000)
+  })
+  const port = Number(banner.match(/:(\d+)\s*$/)?.[1])
+  assert.ok(port > 0 && port !== 5054, banner)
+  assert.equal((await fetch(`http://127.0.0.1:${port}/api/health`)).status, 200)
 })

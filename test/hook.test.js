@@ -98,3 +98,11 @@ test('hook tolerates non-JSON stdin and rejects unknown events', async (t) => {
   assert.equal(bad.code, 1)
   assert.match(bad.out, /unknown hook event/)
 })
+
+test('pretooluse: a file named "..foo" inside the project is still path-checked', async (t) => {
+  const { url } = await spawnServe(t)
+  assert.equal((await claim(url, { agent: 'gemini', resource: '..foo', kind: 'path' })).status, 201)
+  const cwd = '/tmp/dotdot-app'
+  const r = await runHook(url, 'pretooluse', { tool_name: 'Edit', tool_input: { file_path: `${cwd}/..foo` }, cwd }, 'claude')
+  assert.equal(r.code, 2, r.out)
+})

@@ -72,3 +72,52 @@ test('same project, different location: a path claim elsewhere does not block', 
 test('no resource and no path → never a conflict', () => {
   assert.equal(findConflicts([pathClaim('**')], { agent: 'claude' }).length, 0)
 })
+
+const claimBlocked = (held, wanted, holder = 'gemini') =>
+  findConflicts([pathClaim(held, holder)], { agent: 'claude', resource: wanted, kind: 'path' }).length === 1
+
+test('path claim vs path claim: nested or overlapping claims conflict (both directions)', () => {
+  const overlapping = [
+    ['src/**', 'src/api/**'],
+    ['src/api', 'src/api/users.js'],
+    ['src/api/', 'src/api/**'],
+    ['src', 'src/**/*.js'],
+    ['**', 'docs/a.md'],
+    ['**/*.md', 'docs'],
+    ['*.md', 'README.md'],
+    ['src/*/users.js', 'src/api'],
+    ['./src//api/', 'src/api/x.js'],
+    ['src/*.js', 'src/*.ts'], // two wildcard segments: conservatively treated as overlapping
+  ]
+  for (const [a, b] of overlapping) {
+    assert.ok(claimBlocked(a, b), `${a} vs ${b}`)
+    assert.ok(claimBlocked(b, a), `${b} vs ${a}`)
+  }
+})
+
+test('path claim vs path claim: disjoint claims do not conflict', () => {
+  const disjoint = [
+    ['src/api', 'src/api-v2'],
+    ['src/api/**', 'src/api-v2/**'],
+    ['src/a', 'src/ab/x.js'],
+    ['*.md', 'src/x.js'],
+    ['*.md', 'src'],
+    ['src/*/users.js', 'src/api/orders.js'],
+    ['docs/**', 'src/**'],
+  ]
+  for (const [a, b] of disjoint) {
+    assert.ok(!claimBlocked(a, b), `${a} vs ${b}`)
+    assert.ok(!claimBlocked(b, a), `${b} vs ${a}`)
+  }
+})
+
+test('path claim vs path claim: same agent never conflicts with itself', () => {
+  assert.equal(findConflicts([pathClaim('src/**', 'claude')], { agent: 'claude', resource: 'src/api/**', kind: 'path' }).length, 0)
+})
+
+test('path claim overlap only applies between path claims', () => {
+  // a project claim named like a directory does not block a path claim beneath it
+  assert.equal(findConflicts([{ agent: 'codex', resource: 'src', kind: 'project' }], { agent: 'claude', resource: 'src/api', kind: 'path' }).length, 0)
+  // a new project claim is still exact-match only
+  assert.equal(findConflicts([pathClaim('src/**')], { agent: 'claude', resource: 'src' }).length, 0)
+})

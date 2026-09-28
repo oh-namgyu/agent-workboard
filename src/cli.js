@@ -58,10 +58,11 @@ async function findClaimId(agent, resource) {
 async function run(cmd, args) {
   if (cmd === 'serve') {
     const { createServer, defaults } = await import('./server.js')
-    const port = Number(args.port) || defaults.port
+    const port = args.port === undefined ? defaults.port : Number(args.port)
+    if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error(`invalid --port: ${args.port} (0 = ephemeral)`)
     const host = args.host || process.env.WORKBOARD_HOST || '127.0.0.1'
     const { app } = createServer({ dbFile: args.db, ttlMinutes: args.ttl ? Number(args.ttl) : undefined })
-    app.listen(port, host, () => console.log(`agent-workboard listening on http://${host}:${port}`))
+    const srv = app.listen(port, host, () => console.log(`agent-workboard listening on http://${host}:${srv.address().port}`))
     return null // keep process alive
   }
 

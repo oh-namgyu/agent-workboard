@@ -60,6 +60,24 @@ You ────────── dashboard (force release, live view) <──�
 |---|---|
 | claim/edit in project `my-app` | another agent's active claim on `my-app` |
 | edit `src/api/users.js` | another agent's `path` claim that covers it (`src/api/**`, `src/api/`, or `src/api` — a path claim covers everything beneath it, never a sibling like `src/api-v2`) |
+| claim a `path` (e.g. `src/api/**`) | another agent's `path` claim that could cover any of the same files (see below) |
+
+Two path claims **overlap** (conservative: a false positive beats a silent collision) when:
+1. their static prefixes (segments before the first `*`/`?` segment) are equal or one is a directory-ancestor of the other, and
+2. walking both globs segment by segment, every literal pair is equal, every literal-vs-wildcard pair matches, and
+   wildcard-vs-wildcard pairs are assumed to match; a `**` segment, or either glob ending first (a claim covers everything beneath it), means overlap.
+
+| Held | Requested | Overlap? |
+|---|---|---|
+| `src/**` | `src/api/**` | yes |
+| `src/api` | `src/api/users.js` | yes |
+| `**/*.md` | `docs` | yes |
+| `src/*.js` | `src/*.ts` | yes (two wildcards — conservative) |
+| `src/api` | `src/api-v2` | no (sibling) |
+| `*.md` | `src/x.js` | no (`*` never crosses `/`) |
+| `src/*/users.js` | `src/api/orders.js` | no |
+
+Project claims stay exact-match only and never overlap path claims.
 
 Same-agent re-claims are idempotent (they refresh the heartbeat). Claims with no heartbeat
 for the TTL (default 30 min) are flagged **stale**; after 2× TTL the reaper auto-releases them.
@@ -67,7 +85,7 @@ for the TTL (default 30 min) are flagged **stale**; after 2× TTL the reaper aut
 ## CLI
 
 ```
-workboard serve [--port N] [--host H] [--db FILE] [--ttl MINUTES]
+workboard serve [--port N] [--host H] [--db FILE] [--ttl MINUTES]   # --port 0 = ephemeral
 workboard claim <resource> [--agent NAME] [--note TEXT] [--kind project|path]
 workboard release <resource> [--agent NAME] | --id ID
 workboard list [--json]
