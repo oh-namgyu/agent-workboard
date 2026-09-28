@@ -59,7 +59,7 @@ You ────────── dashboard (force release, live view) <──�
 | Your action | Blocked by |
 |---|---|
 | claim/edit in project `my-app` | another agent's active claim on `my-app` |
-| edit `src/api/users.js` | another agent's `path` claim whose glob matches (e.g. `src/api/**`) |
+| edit `src/api/users.js` | another agent's `path` claim that covers it (`src/api/**`, `src/api/`, or `src/api` — a path claim covers everything beneath it, never a sibling like `src/api-v2`) |
 
 Same-agent re-claims are idempotent (they refresh the heartbeat). Claims with no heartbeat
 for the TTL (default 30 min) are flagged **stale**; after 2× TTL the reaper auto-releases them.

@@ -28,7 +28,7 @@ export async function runHook(event) {
 
   if (event === 'pretooluse') {
     if (!GATED_TOOLS.test(payload.tool_name || '')) return 0
-    const file = payload.tool_input?.file_path || ''
+    const file = payload.tool_input?.file_path || payload.tool_input?.notebook_path || ''
     const rel = isAbsolute(file) ? relative(cwd, file) : file
     const q = new URLSearchParams({ agent, resource: project })
     if (rel && !rel.startsWith('..')) q.set('path', rel)

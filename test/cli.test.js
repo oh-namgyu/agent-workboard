@@ -1,17 +1,15 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { spawn, execFile } from 'node:child_process'
-import { mkdtempSync, rmSync } from 'node:fs'
-import { tmpdir } from 'node:os'
-import { join, dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { execFile } from 'node:child_process'
+import { readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 import { promisify } from 'node:util'
+import { CLI, spawnServe, tempDir } from './helpers.js'
 
-const CLI = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'cli.js')
-const PORT = 5099
+let URL
 
 function cli(args, agent) {
-  const env = { ...process.env, WORKBOARD_URL: `http://127.0.0.1:${PORT}`, WORKBOARD_AGENT: agent }
+  const env = { ...process.env, WORKBOARD_URL: URL, WORKBOARD_AGENT: agent }
   return promisify(execFile)(process.execPath, [CLI, ...args], { env }).then(
     (r) => ({ code: 0, out: r.stdout + r.stderr }),
     (e) => ({ code: e.code, out: (e.stdout || '') + (e.stderr || '') })
@@ -19,14 +17,7 @@ function cli(args, agent) {
 }
 
 test('CLI e2e — two agents collide on one resource', async (t) => {
-  const dir = mkdtempSync(join(tmpdir(), 'workboard-cli-'))
-  const server = spawn(process.execPath, [CLI, 'serve', '--port', String(PORT), '--db', join(dir, 'e2e.db')])
-  t.after(() => (server.kill(), rmSync(dir, { recursive: true, force: true })))
-  await new Promise((resolve, reject) => {
-    server.stdout.on('data', resolve)
-    server.on('error', reject)
-    setTimeout(() => reject(new Error('server did not start')), 5000)
-  })
+  URL = (await spawnServe(t)).url
 
   // codex claims the project
   let r = await cli(['claim', 'demo-app', '--note', 'api refactor'], 'codex')
@@ -60,4 +51,22 @@ test('CLI e2e — two agents collide on one resource', async (t) => {
   assert.equal(r.code, 0, r.out)
   r = await cli(['claim', 'demo-app'], 'claude')
   assert.equal(r.code, 0, r.out)
+})
+
+test('install-claude writes only into the target project and is idempotent', async (t) => {
+  const project = tempDir(t, 'workboard-install-')
+  for (let i = 0; i < 2; i++) {
+    const r = await cli(['install-claude', '--project', project], 'claude')
+    assert.equal(r.code, 0, r.out)
+  }
+  const settings = JSON.parse(readFileSync(join(project, '.claude', 'settings.local.json'), 'utf8'))
+  for (const event of ['PreToolUse', 'SessionStart', 'SessionEnd']) {
+    assert.equal(settings.hooks[event].length, 1, `${event} hook duplicated on re-install`)
+  }
+  assert.match(settings.hooks.PreToolUse[0].matcher, /NotebookEdit/)
+  const commands = readdirSync(join(project, '.claude', 'commands'))
+  assert.ok(commands.length > 0)
+  for (const f of commands) {
+    assert.doesNotMatch(readFileSync(join(project, '.claude', 'commands', f), 'utf8'), /\{\{WORKBOARD\}\}/)
+  }
 })

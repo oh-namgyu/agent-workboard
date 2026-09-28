@@ -5,6 +5,8 @@ import { homedir } from 'node:os'
 import { openStore } from './db.js'
 import { findConflicts } from './conflict.js'
 
+const isText = (v) => typeof v === 'string' && v.length > 0
+
 const PUBLIC_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'public')
 
 export const defaults = {
@@ -33,7 +35,10 @@ export function createServer({ dbFile, ttlMinutes } = {}) {
 
   app.post('/api/claims', (req, res) => {
     const { agent, resource, kind, note } = req.body || {}
-    if (!agent || !resource) return res.status(400).json({ error: 'agent and resource are required' })
+    if (!isText(agent) || !isText(resource)) {
+      return res.status(400).json({ error: 'agent and resource are required non-empty strings' })
+    }
+    if (note != null && typeof note !== 'string') return res.status(400).json({ error: 'note must be a string' })
     if (kind != null && kind !== 'project' && kind !== 'path') {
       return res.status(400).json({ error: "kind must be 'project' or 'path'" })
     }
@@ -77,6 +82,13 @@ export function createServer({ dbFile, ttlMinutes } = {}) {
     res.flushHeaders()
     sseClients.add(res)
     req.on('close', () => sseClients.delete(res))
+  })
+
+  // JSON errors only — never echo stack traces (body-parser failures, unexpected throws) to clients.
+  app.use((err, req, res, next) => {
+    const status = err.status >= 400 && err.status < 500 ? err.status : 500
+    if (status === 500) console.error(err)
+    res.status(status).json({ error: status === 500 ? 'internal error' : err.type === 'entity.parse.failed' ? 'invalid JSON body' : err.message })
   })
 
   const reaper = setInterval(() => {
