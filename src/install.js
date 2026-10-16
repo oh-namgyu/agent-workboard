@@ -6,12 +6,24 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const CLI = join(ROOT, 'src', 'cli.js')
 const COMMANDS_SRC = join(ROOT, 'integrations', 'claude-code', 'commands')
 
-function ensureHook(settings, event, entry) {
+// Our hook commands look like `node "<clone>/src/cli.js" hook <sub>`, whatever the clone is named.
+const OUR_HOOK = /[\\/]src[\\/]cli\.js" hook (\S+)$/
+
+/** Add our hook unless one for the same subcommand exists; if it does, point it at this clone. */
+export function ensureHook(settings, event, entry) {
   settings.hooks ??= {}
   settings.hooks[event] ??= []
-  const already = JSON.stringify(settings.hooks[event]).includes('agent-workboard')
-  if (!already) settings.hooks[event].push(entry)
-  return !already
+  const command = entry.hooks[0].command
+  const sub = command.match(OUR_HOOK)[1]
+  const existing = settings.hooks[event]
+    .flatMap((group) => group.hooks ?? [])
+    .find((h) => h.command?.match(OUR_HOOK)?.[1] === sub)
+  if (existing) {
+    existing.command = command
+    return false
+  }
+  settings.hooks[event].push(entry)
+  return true
 }
 
 /** Wire hooks + slash commands into a project's .claude/ directory. Idempotent. */
