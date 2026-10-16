@@ -1,6 +1,6 @@
 {
   "name": "agent-workboard",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Claim board that keeps multiple AI coding agents (Claude Code, Codex, Gemini, ...) from clobbering each other in the same codebase — REST server, live dashboard, CLI, and agent integration kit (hooks / slash commands).",
   "type": "module",
   "license": "MIT",

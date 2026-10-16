@@ -4,15 +4,16 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-16
+
 ### Changed
 - **Breaking:** Node.js 22 or later is required (`engines.node` is now `>=22`, was `>=20`). `better-sqlite3` 13 supports Node 22+ only; on Node 20 it crashes with SIGSEGV.
 - `better-sqlite3` 11 → 13 (bundled SQLite 3.49.2 → 3.53.4). v13 is built on N-API and ships its prebuilt binaries inside the npm package (Linux glibc and musl, macOS, Windows; x64 and arm64), so nothing is downloaded or compiled at install time, and `prebuild-install` plus 33 other install-time packages are gone from the dependency tree. No API changes were needed. npm still runs an empty `node-gyp rebuild` for it on lockfile installs ([npm/cli#9837](https://github.com/npm/cli/issues/9837)), which needs Python and `make`; where those are missing, install with `--ignore-scripts` (see README).
+- `express` 4 → 5 (now 5.3.0).
 - Docker image is based on `node:26-slim` (was `node:22-slim`) and installs with `npm ci --omit=dev --ignore-scripts`, so it builds on slim base images that have no Python or `make`.
 
-### CI
-
-- Build and smoke the Docker image on every push, so a base-image bump that breaks the native `better-sqlite3` build (e.g. `node:26-slim`) fails CI instead of merging silently.
-- Test matrix is Node 22 and 24 (was 20 and 22).
+### Added
+- Behavioral test suite (5 → 45 tests): conflict edge cases, store lifecycle / stale / expiry, HTTP API validation, loopback-only default bind, hook behavior on conflict, `install-claude` idempotency. Tests use ephemeral ports and temp DBs.
 
 ### Fixed
 - Path globs: `**/` now also matches zero directories (`src/**/*.js` covers `src/a.js`, `**/*.test.js` covers a root-level `a.test.js`) — previously such edits were silently allowed.
@@ -24,8 +25,16 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 - `workboard serve --port 0` now binds an ephemeral port and prints the actual port (previously fell back to 5054); an invalid `--port` value is rejected instead of silently using the default.
 - Claude Code hook: a project file whose name starts with `..` (e.g. `..foo`) is now path-checked; only real parent traversal (`..` or `../…`) is skipped.
 
-### Added
-- Behavioral test suite (5 → 45 tests): conflict edge cases, store lifecycle / stale / expiry, HTTP API validation, loopback-only default bind, hook behavior on conflict, `install-claude` idempotency. Tests use ephemeral ports and temp DBs.
+### Security
+- `qs` 6.15.3 → 6.16.0 for GHSA-x5fp-wj9c-mxmx (array-limit bypass) and GHSA-4mjr-xmp4-gh2g (denial of service), both medium.
+
+### CI
+- Build and smoke the Docker image on every push, so a base-image bump that breaks the native `better-sqlite3` build (e.g. `node:26-slim`) fails CI instead of merging silently.
+- Test matrix is Node 22 and 24 (was 20 and 22).
+- Dependabot checks npm, GitHub Actions and Docker updates weekly; patch and minor updates auto-merge after checks pass, major updates stay manual.
+
+### Docs
+- README: CI, license and release badges, a Korean summary at the top, a standardized header and License section, and the Node.js 22 requirement. This changelog was added.
 
 ## [v0.1.0] - 2026-06-19
 ### Added
