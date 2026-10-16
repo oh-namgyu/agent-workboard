@@ -4,6 +4,11 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-10-16
+
+### Fixed
+- `install-claude` no longer adds the hooks a second time when re-run from a clone whose directory is not named `agent-workboard`. It now recognizes its own hooks by command shape (`…/src/cli.js" hook <sub>`) and, if the clone moved, repoints the existing hook instead of adding another.
+
 ## [0.2.0] - 2026-10-16
 
 ### Changed
@@ -36,6 +41,6 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 ### Docs
 - README: CI, license and release badges, a Korean summary at the top, a standardized header and License section, and the Node.js 22 requirement. This changelog was added.
 
-## [v0.1.0] - 2026-06-19
+## [0.1.0] - 2026-06-19
 ### Added
 - Initial public release.
