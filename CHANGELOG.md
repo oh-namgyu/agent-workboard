@@ -7,7 +7,7 @@ All notable changes are documented here. Format: [Keep a Changelog](https://keep
 ### Changed
 - **Breaking:** Node.js 22 or later is required (`engines.node` is now `>=22`, was `>=20`). `better-sqlite3` 13 supports Node 22+ only; on Node 20 it crashes with SIGSEGV.
 - `better-sqlite3` 11 → 13 (bundled SQLite 3.49.2 → 3.53.4). v13 is built on N-API and ships its prebuilt binaries inside the npm package (Linux glibc and musl, macOS, Windows; x64 and arm64), so nothing is downloaded or compiled at install time, and `prebuild-install` plus 33 other install-time packages are gone from the dependency tree. No API changes were needed. npm still runs an empty `node-gyp rebuild` for it on lockfile installs ([npm/cli#9837](https://github.com/npm/cli/issues/9837)), which needs Python and `make`; where those are missing, install with `--ignore-scripts` (see README).
-- Docker image installs with `npm ci --omit=dev --ignore-scripts`, so it builds on slim base images that have no Python or `make`.
+- Docker image is based on `node:26-slim` (was `node:22-slim`) and installs with `npm ci --omit=dev --ignore-scripts`, so it builds on slim base images that have no Python or `make`.
 
 ### CI
 

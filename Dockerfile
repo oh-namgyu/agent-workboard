@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:26-slim
 WORKDIR /app
 COPY package*.json ./
 # better-sqlite3 ships prebuilt binaries, but npm ci still synthesizes `node-gyp rebuild`
