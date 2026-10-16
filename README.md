@@ -28,6 +28,11 @@ everyone can see, a TTL reaper for crashed sessions, and hooks that enforce it w
 
 ## Quick start
 
+Requires Node.js 22 or later. If `npm install` stops in `node-gyp rebuild` because Python or
+`make` is missing, run `npm install --ignore-scripts` instead: `better-sqlite3` ships prebuilt
+binaries for Linux, macOS and Windows (x64/arm64), and npm only runs that build step because of
+[npm/cli#9837](https://github.com/npm/cli/issues/9837).
+
 ```bash
 git clone https://github.com/oh-namgyu/agent-workboard && cd agent-workboard
 npm install
